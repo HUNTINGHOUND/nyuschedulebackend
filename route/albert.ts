@@ -1,10 +1,12 @@
-import { TIMEOUT } from "dns";
 import express from "express";
 import schedule from "node-schedule";
 import webdriver from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 const JSSoup = require("jssoup").default;
 const { SoupString } = require('jssoup');
+require("dotenv").config({silent: true});
+
+let selenium_url = process.env.SELENIUM_URL ? process.env.SELENIUM_URL : "http://seleniumhub:4444/wd/hub";
 
 
 interface courseInfo {
@@ -224,7 +226,7 @@ const explorerfunc = async () => {
         .setChromeOptions(
             new chrome.Options().headless().addArguments("--no-sandbox")
         )
-        .usingServer("http://seleniumhub:4444/wd/hub")
+        .usingServer(selenium_url)
         .build();
 
     let explored_terms: string[] = [];
@@ -303,7 +305,7 @@ async function getCourses(term: string, school: string, major: string): Promise<
         .setChromeOptions(
             new chrome.Options().headless().addArguments("--no-sandbox")
         )
-        .usingServer("http://seleniumhub:4444/wd/hub")
+        .usingServer(selenium_url)
         .build();
     await driver.get(start_url);
 
