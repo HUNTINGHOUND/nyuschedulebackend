@@ -1,42 +1,13 @@
 version: "3"
 services:
-    seleniumhub:
-        image: selenium/hub
-        ports:
-            - "4442-4444:4442-4444"
-        environment:
-            GRID_MAX_SESSION: 16
-            GRID_BROWSER_TIMEOUT: 3000
-            GRID_TIMEOUT: 300
-        deploy:
-            restart_policy:
-                condition: on-failure
-
-
-    worker0:
-        image: selenium/node-chrome
-        ports:
-            - "5555:5555"
-        depends_on:
-            - seleniumhub
-        environment:
-            - SE_EVENT_BUS_HOST=seleniumhub
-            - SE_EVENT_BUS_PUBLISH_PORT=4442
-            - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-            - SE_NODE_HOST=worker0
-        volumes:
-            - /dev/shm:/dev/shm
-        shm_size: "2gb"
-        deploy:
-            restart_policy:
-                condition: on-failure
-
     albert:
         image: huntinghound/newalbertexpress:latest
         links:
             - seleniumhub
         ports:
-            - "80:80"
+            - "3000:3000"
         deploy:
             restart_policy:
                 condition: on-failure
+        extra_hosts:
+            - "host.docker.internal:host-gateway"

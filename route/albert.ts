@@ -21,7 +21,7 @@ interface infoType {
             [major: string]: {
                 last_scrapped: number | null;
                 courses: any;
-            };
+            } | undefined;
         };
     };
 }
@@ -206,12 +206,13 @@ function parsePage(html: string):courseInfo {
 }
 
 async function waittoload(driver: webdriver.ThenableWebDriver): Promise<void> {
+    const start = Date.now();
     while (true) {
         let element = await driver.findElement(
             webdriver.By.xpath('//img[@id="processing"]')
         );
         const dis = await element.isDisplayed();
-        if (!dis) {
+        if (!dis || Date.now() - start > 60000) {
             return;
         }
         await new Promise(r => setTimeout(r, 1000));
@@ -268,7 +269,11 @@ const explorerfunc = async () => {
                     if (!(schoolname in info[term])) {
                         info[term][schoolname] = {};
                     }
-                    info[term][schoolname][major] = { last_scrapped: null, courses: {} };
+
+                    if(!info[term][schoolname][major]) {
+                        info[term][schoolname][major] = { last_scrapped: null, courses: {} };
+                    }
+                    
                 }
             }
         }
@@ -292,12 +297,12 @@ setTimeout(() => explorerfunc(), 10000);
 const daily_explorer = schedule.scheduleJob("1 * * *", explorerfunc);
 
 async function getCourses(term: string, school: string, major: string): Promise<any> {
-    if (!info[term] && !info[term][school] && !info[term][school][major]) {
+    if (!info[term] || !info[term][school] || !info[term][school][major]) {
         return {};
     }
 
-    if (info[term][school][major]['last_scrapped'] && Date.now() - info[term][school][major]['last_scrapped']! < 300000) {
-        return info[term][school][major]['courses'];
+    if (info[term][school][major]!['last_scrapped'] && Date.now() - info[term][school][major]!['last_scrapped']! < 300000) {
+        return info[term][school][major]!['courses'];
     }
 
     let driver = new webdriver.Builder()
@@ -370,8 +375,8 @@ async function getCourses(term: string, school: string, major: string): Promise<
                 return {};
             }
 
-            info[term][school][major]['courses'] = courses;
-            info[term][school][major]['last_scrapped'] = Date.now();
+            info[term][school][major]!['courses'] = courses;
+            info[term][school][major]!['last_scrapped'] = Date.now();
             console.log("Added to cache");
             await driver.quit();
             return courses;
