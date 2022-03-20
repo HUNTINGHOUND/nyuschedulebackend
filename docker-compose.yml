@@ -1,7 +1,7 @@
 version: "3"
 services:
     albert:
-        image: huntinghound/newalbertexpress:latest
+        image: newalbertexpress:latest
         links:
             - seleniumhub
         ports:
