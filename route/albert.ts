@@ -447,10 +447,9 @@ async function getCourses(
                 await driver.quit();
                 return courses;
             }
-
-            await driver.quit();
-            return {};
         }
+        await driver.quit();
+        return {};
     } catch (error) {
         if (driver) await driver.quit();
         console.log("Error encountered while getting course");
