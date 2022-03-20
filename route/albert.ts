@@ -453,6 +453,7 @@ async function getCourses(
         }
     } catch (error) {
         if (driver) await driver.quit();
+        console.log("Error encountered while getting course");
     }
 }
 

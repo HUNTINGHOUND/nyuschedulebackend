@@ -2,8 +2,6 @@ version: "3"
 services:
     albert:
         image: newalbertexpress:latest
-        links:
-            - seleniumhub
         ports:
             - "3000:3000"
         deploy:
