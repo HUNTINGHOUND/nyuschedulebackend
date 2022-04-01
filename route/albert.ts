@@ -356,10 +356,15 @@ async function getCourses(
 
         const term_name = term.substring(0, term.indexOf(" "));
         const term_year = parseInt(term.substring(term.indexOf(" ") + 1));
-        for (let i = 0; i < 3; i++) {
-            let element = await driver.findElement(
-                webdriver.By.xpath(`(//div[@class="ps_box-group"])[${i + 1}]//a`)
-            );
+        for (let i = 0; i < 4; i++) {
+            let element;
+            try {
+                element = await driver.findElement(
+                    webdriver.By.xpath(`(//div[@class="ps_box-group"])[${i + 1}]//a`)
+                );
+            } catch (e) {
+                continue;
+            }
             const elementText = await element.getText();
             const first_year = parseInt(
                 elementText.substring(0, elementText.indexOf("-"))
