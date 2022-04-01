@@ -256,11 +256,16 @@ const explorerfunc = async () => {
 
     let explored_terms: string[] = [];
     await driver.get(start_url);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
         console.log(`Explorer scrapping year ${i + 1}.`);
-        let element = await driver.findElement(
-            webdriver.By.xpath(`(//div[@class="ps_box-group"])[${i + 1}]//a`)
-        );
+        let element;
+        try {
+            element = await driver.findElement(
+                webdriver.By.xpath(`(//div[@class="ps_box-group"])[${i + 1}]//a`)
+            );
+        } catch (e) {
+            continue;
+        }
         await element.click();
         await waittoload(driver);
         console.log(`Explorer year ${i + 1} clicked`);
