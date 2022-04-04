@@ -254,77 +254,83 @@ const explorerfunc = async () => {
         .usingServer(selenium_url)
         .build();
 
-    let explored_terms: string[] = [];
-    await driver.get(start_url);
-    for (let i = 0; i < 4; i++) {
-        console.log(`Explorer scrapping year ${i + 1}.`);
-        let element;
-        try {
-            element = await driver.findElement(
-                webdriver.By.xpath(`(//div[@class="ps_box-group"])[${i + 1}]//a`)
-            );
-        } catch (e) {
-            continue;
-        }
-        await element.click();
-        await waittoload(driver);
-        console.log(`Explorer year ${i + 1} clicked`);
+    try {
 
-        const html = await driver.getPageSource();
-        const soup = new JSSoup(html);
-        const schools = soup.find(undefined, { id: "win0divGROUP$0" });
+        let explored_terms: string[] = [];
+        await driver.get(start_url);
+        for (let i = 0; i < 4; i++) {
+            console.log(`Explorer scrapping year ${i + 1}.`);
+            let element;
+            try {
+                element = await driver.findElement(
+                    webdriver.By.xpath(`(//div[@class="ps_box-group"])[${i + 1}]//a`)
+                );
+            } catch (e) {
+                continue;
+            }
+            await element.click();
+            await waittoload(driver);
+            console.log(`Explorer year ${i + 1} clicked`);
 
-        let terms: string[] = [];
-        const win0tag = soup.find(undefined, {
-            id: "win0divNYU_CLS_WRK_TERMS_LBL",
-        });
-        for (const term_tag of win0tag.findAll("label")) {
-            terms.push(term_tag.getText());
-        }
-        explored_terms.push(...terms);
+            const html = await driver.getPageSource();
+            const soup = new JSSoup(html);
+            const schools = soup.find(undefined, { id: "win0divGROUP$0" });
 
-        for (const term of terms) {
-            for (const school of schools.contents) {
-                const schoolname: string = school
-                    .find("div")
-                    .find("h2")
-                    .find("span")
-                    .getText();
-                const schoolmajors: string[] = [];
-                for (const major of school.findAll("a")) {
-                    schoolmajors.push(major.getText());
-                }
+            let terms: string[] = [];
+            const win0tag = soup.find(undefined, {
+                id: "win0divNYU_CLS_WRK_TERMS_LBL",
+            });
+            for (const term_tag of win0tag.findAll("label")) {
+                terms.push(term_tag.getText());
+            }
+            explored_terms.push(...terms);
 
-                for (const major of schoolmajors) {
-                    if (!(term in info)) {
-                        info[term] = {};
-                    }
-                    if (!(schoolname in info[term])) {
-                        info[term][schoolname] = {};
+            for (const term of terms) {
+                for (const school of schools.contents) {
+                    const schoolname: string = school
+                        .find("div")
+                        .find("h2")
+                        .find("span")
+                        .getText();
+                    const schoolmajors: string[] = [];
+                    for (const major of school.findAll("a")) {
+                        schoolmajors.push(major.getText());
                     }
 
-                    if (!info[term][schoolname][major]) {
-                        info[term][schoolname][major] = {
-                            last_scrapped: null,
-                            courses: {},
-                        };
+                    for (const major of schoolmajors) {
+                        if (!(term in info)) {
+                            info[term] = {};
+                        }
+                        if (!(schoolname in info[term])) {
+                            info[term][schoolname] = {};
+                        }
+
+                        if (!info[term][schoolname][major]) {
+                            info[term][schoolname][major] = {
+                                last_scrapped: null,
+                                courses: {},
+                            };
+                        }
                     }
                 }
             }
         }
-    }
 
-    await driver.quit();
-    console.log("Explorer clean up");
+        await driver.quit();
+        console.log("Explorer clean up");
 
-    for (const key in info) {
-        if (!(key in explored_terms)) {
-            const { removed: key, ...removed_info } = info;
-            info = removed_info;
+        for (const key in info) {
+            if (!(key in explored_terms)) {
+                const { removed: key, ...removed_info } = info;
+                info = removed_info;
+            }
         }
-    }
 
-    console.log("Explorer finish scrapping");
+        console.log("Explorer finish scrapping");
+    } catch (e) {
+        if(driver) await driver.quit();
+        console.log("Explorer error");
+    }
 };
 
 setTimeout(() => explorerfunc(), 10000);
