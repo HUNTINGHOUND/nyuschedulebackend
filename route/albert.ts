@@ -327,9 +327,8 @@ const explorerfunc = async () => {
         }
 
         console.log("Explorer finish scrapping");
-    } catch (e) {
+    } finally {
         if(driver) await driver.quit();
-        console.log("Explorer error");
     }
 };
 
@@ -466,9 +465,8 @@ async function getCourses(
         }
         await driver.quit();
         return {};
-    } catch (error) {
+    } finally {
         if (driver) await driver.quit();
-        console.log("Error encountered while getting course");
     }
 }
 
