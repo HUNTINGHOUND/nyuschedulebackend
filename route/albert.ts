@@ -352,16 +352,14 @@ async function getCourses(
         return info[term][school][major]!["courses"];
     }
 
-    let driver: webdriver.ThenableWebDriver | undefined = undefined;
+    let driver: webdriver.ThenableWebDriver | undefined = new webdriver.Builder()
+        .forBrowser("chrome")
+        .setChromeOptions(
+            new chrome.Options().headless().addArguments("--no-sandbox")
+        )
+        .usingServer(selenium_url)
+        .build();;
     try {
-        driver = new webdriver.Builder()
-            .forBrowser("chrome")
-            .setChromeOptions(
-                new chrome.Options().headless().addArguments("--no-sandbox")
-            )
-            .usingServer(selenium_url)
-            .build();
-
         await driver.get(start_url);
 
         const term_name = term.substring(0, term.indexOf(" "));
