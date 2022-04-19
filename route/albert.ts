@@ -328,7 +328,9 @@ const explorerfunc = async () => {
 
         console.log("Explorer finish scrapping");
     } finally {
-        if(driver) await driver.quit();
+        try {
+            if(driver) await driver.quit();
+        } catch(e) {}
     }
 };
 
@@ -464,7 +466,9 @@ async function getCourses(
         await driver.quit();
         return {};
     } finally {
-        if (driver) await driver.quit();
+        try {
+            if (driver) await driver.quit();
+        } catch(e) {}
     }
 }
 
